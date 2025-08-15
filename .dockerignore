@@ -18,8 +18,10 @@ coverage
 *.swp
 *.swo
 *~
+
 # Não ignorar arquivos importantes
+!tsconfig*.json
+!vite.config.ts
+!tailwind.config.js
+!postcss.config.js
 !build.sh
-!Dockerfile
-!nginx.conf
-!package*.json

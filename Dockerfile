@@ -12,6 +12,9 @@ COPY package*.json ./
 COPY build.sh ./
 RUN chmod +x build.sh
 
+# Copiar todo o código fonte
+COPY . .
+
 # Executar script de build personalizado
 RUN ./build.sh
 
@@ -23,9 +26,6 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copiar configuração do nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Verificar arquivos copiados
-RUN ls -la /usr/share/nginx/html/
 
 # Expor porta 80
 EXPOSE 80
