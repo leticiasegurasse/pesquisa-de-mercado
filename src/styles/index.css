@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  /* Fonte principal */
+  --font-family-primary: "Manrope", "Manrope Placeholder", sans-serif;
+  
+  /* Cores principais da identidade visual */
+  --color-primary: #238cd2;
+  --color-secondary: #FFAF3C;
+  --color-accent: #96E6F0;
+  
+  /* Variantes da cor primária (azul) */
+  --color-primary-50: #f0f8ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #238cd2; /* Cor principal */
+  --color-primary-600: #1e7ab8;
+  --color-primary-700: #1a6a9e;
+  --color-primary-800: #155a84;
+  --color-primary-900: #104a6a;
+  
+  /* Variantes da cor secundária (laranja) */
+  --color-secondary-50: #fffbf0;
+  --color-secondary-100: #fef3c7;
+  --color-secondary-200: #fde68a;
+  --color-secondary-300: #fcd34d;
+  --color-secondary-400: #fbbf24;
+  --color-secondary-500: #FFAF3C; /* Cor principal */
+  --color-secondary-600: #f59e0b;
+  --color-secondary-700: #d97706;
+  --color-secondary-800: #b45309;
+  --color-secondary-900: #92400e;
+  
+  /* Variantes da cor accent (azul claro) */
+  --color-accent-50: #f0fdff;
+  --color-accent-100: #ccfbf1;
+  --color-accent-200: #99f6e4;
+  --color-accent-300: #5eead4;
+  --color-accent-400: #2dd4bf;
+  --color-accent-500: #96E6F0; /* Cor principal */
+  --color-accent-600: #0d9488;
+  --color-accent-700: #0f766e;
+  --color-accent-800: #115e59;
+  --color-accent-900: #134e4a;
+  
+  /* Cores neutras */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  
+  /* Estados e feedback */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+}
+
