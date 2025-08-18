@@ -2,11 +2,11 @@
 const getApiUrl = () => {
   // Se estiver em desenvolvimento e não houver URL específica, usar localhost
   if (import.meta.env.DEV && !import.meta.env.VITE_API_URL) {
-    return 'http://localhost:3001';
+    return 'https://pesquisa-de-mercado-backend.vercel.app';
   }
   
   // Usar a URL configurada ou fallback para produção
-  return import.meta.env.VITE_API_URL || 'https://site-demonstracao-pesquisa-mercado-back.ynaped.easypanel.host';
+  return import.meta.env.VITE_API_URL || 'https://pesquisa-de-mercado-backend.vercel.app';
 };
 
 export const API_URL = getApiUrl();
