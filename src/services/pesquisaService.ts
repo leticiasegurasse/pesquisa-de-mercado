@@ -30,7 +30,8 @@ export interface ApiResponse<T = any> {
 }
 
 export interface PesquisaData {
-  id: number;
+  _id?: string;
+  id?: string | number; // MongoDB usa _id como string, mas mantemos compatibilidade
   nome: string;
   whatsapp: string;
   cpf?: string;
@@ -53,6 +54,11 @@ export interface Estatisticas {
   provedores_mais_citados: Array<{ provedor: string; quantidade: number }>;
   bairros_mais_pesquisados: Array<{ bairro: string; quantidade: number }>;
   media_valor_mensal: string;
+  // Campos específicos para o dashboard
+  interessados: number;
+  nao_interessados: number;
+  satisfeitos: number;
+  insatisfeitos: number;
 }
 
 class PesquisaService {

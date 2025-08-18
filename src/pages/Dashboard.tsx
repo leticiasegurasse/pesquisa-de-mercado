@@ -27,7 +27,7 @@ import NotificationToast from '../components/Notification';
 
 // Interface para dados de pesquisa do dashboard
 interface DashboardPesquisa {
-  id: number;
+  id: string | number;
   nome: string;
   whatsapp: string;
   cpf?: string;
@@ -155,14 +155,19 @@ const Dashboard = () => {
        }
        pesquisasResponse = await pesquisaService.buscarPesquisas(page, pagination.limit, filtros);
       
-      if (pesquisasResponse.success && pesquisasResponse.data) {
-        console.log('📊 Dados recebidos do backend:', pesquisasResponse.data);
-        
-                 const pesquisasFormatadas = pesquisasResponse.data.map((pesquisa: PesquisaData): DashboardPesquisa => {
+             if (pesquisasResponse.success && pesquisasResponse.data) {
+         console.log('📊 Dados recebidos do backend:', pesquisasResponse.data);
+         
+         // Verificar se os dados estão na estrutura esperada
+         const pesquisasArray = Array.isArray(pesquisasResponse.data) 
+           ? pesquisasResponse.data 
+           : (pesquisasResponse.data as any).pesquisas || [];
+         
+         const pesquisasFormatadas = pesquisasArray.map((pesquisa: PesquisaData): DashboardPesquisa => {
            console.log('📅 Data original:', pesquisa.createdAt, 'Tipo:', typeof pesquisa.createdAt);
            
            return {
-             id: pesquisa.id,
+             id: pesquisa._id || pesquisa.id || `temp-${Date.now()}`, // MongoDB usa _id, fallback para id
              nome: pesquisa.nome,
              whatsapp: pesquisa.whatsapp,
              cpf: pesquisa.cpf,
@@ -177,12 +182,14 @@ const Dashboard = () => {
              dataCriacao: pesquisa.createdAt
            };
          });
-        setPesquisas(pesquisasFormatadas);
-        
-        // Atualizar paginação
-        if (pesquisasResponse.pagination) {
-          setPagination(pesquisasResponse.pagination);
-        }
+         setPesquisas(pesquisasFormatadas);
+         
+         // Atualizar paginação
+         if (pesquisasResponse.pagination) {
+           setPagination(pesquisasResponse.pagination);
+         } else if ((pesquisasResponse.data as any).pagination) {
+           setPagination((pesquisasResponse.data as any).pagination);
+         }
         
         console.log('✅ Pesquisas carregadas:', pesquisasFormatadas.length, 'Página:', page, 'Filtro:', selectedFilter);
       }
@@ -230,23 +237,11 @@ const Dashboard = () => {
   const totalPesquisas = estatisticas?.total_pesquisas || 0;
   const pesquisasNaPagina = pesquisas.length; // Pesquisas na página atual
   
-  // Calcular interessados e não interessados das estatísticas da API
-  const interessados = estatisticas?.por_interesse ? 
-    Object.values(estatisticas.por_interesse).reduce((acc: number, val: any) => acc + val, 0) : 0;
-  
-  const naoInteressados = totalPesquisas - interessados;
-  
-  // Calcular satisfeitos das estatísticas da API
-  const satisfeitos = estatisticas?.por_satisfacao ? 
-    Object.entries(estatisticas.por_satisfacao)
-      .filter(([key]) => key.toLowerCase().includes('satisfeit'))
-      .reduce((acc: number, [, val]) => acc + val, 0) : 0;
-  
-  // Calcular insatisfeitos das estatísticas da API
-  const insatisfeitos = estatisticas?.por_satisfacao ? 
-    Object.entries(estatisticas.por_satisfacao)
-      .filter(([key]) => key.toLowerCase().includes('insatisfeit'))
-      .reduce((acc: number, [, val]) => acc + val, 0) : 0;
+     // Usar os valores calculados diretamente do backend
+   const interessados = estatisticas?.interessados || 0;
+   const naoInteressados = estatisticas?.nao_interessados || 0;
+   const satisfeitos = estatisticas?.satisfeitos || 0;
+   const insatisfeitos = estatisticas?.insatisfeitos || 0;
 
   const formatDate = (dateString: string) => {
     try {
@@ -369,13 +364,18 @@ const Dashboard = () => {
        }
        todasPesquisasResponse = await pesquisaService.buscarPesquisas(1, 1000, filtros);
       
-      if (!todasPesquisasResponse.success || !todasPesquisasResponse.data) {
-        throw new Error('Erro ao buscar dados para exportação');
-      }
+             if (!todasPesquisasResponse.success || !todasPesquisasResponse.data) {
+         throw new Error('Erro ao buscar dados para exportação');
+       }
 
-             // Preparar dados para exportação
-               const dadosParaExportar = todasPesquisasResponse.data.map((pesquisa: PesquisaData) => ({
-          'ID': pesquisa.id,
+       // Verificar se os dados estão na estrutura esperada
+       const pesquisasArray = Array.isArray(todasPesquisasResponse.data) 
+         ? todasPesquisasResponse.data 
+         : (todasPesquisasResponse.data as any).pesquisas || [];
+
+       // Preparar dados para exportação
+       const dadosParaExportar = pesquisasArray.map((pesquisa: PesquisaData) => ({
+          'ID': pesquisa._id || pesquisa.id || 'N/A',
           'Nome': pesquisa.nome,
           'WhatsApp': pesquisa.whatsapp,
           'CPF': pesquisa.cpf || 'Não informado',

@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, MessageCircle, CreditCard, Wifi, ThumbsUp, MapPin, Zap, DollarSign, Monitor, Send, Calendar } from 'lucide-react';
 
 interface PesquisaData {
-  id: number;
+  id: string | number;
   nome: string;
   whatsapp: string;
   cpf?: string;
