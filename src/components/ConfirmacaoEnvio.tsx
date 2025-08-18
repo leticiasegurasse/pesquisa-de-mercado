@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CheckCircle, Heart, Wifi, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Heart, Wifi, ArrowLeft, MessageCircle } from 'lucide-react';
 
 interface ConfirmacaoEnvioProps {
   onVoltar: () => void;
@@ -44,8 +44,23 @@ const ConfirmacaoEnvio = ({ onVoltar }: ConfirmacaoEnvioProps) => {
           className="text-lg text-gray-600 mb-8 max-w-md mx-auto"
         >
           Obrigado por participar da nossa pesquisa de mercado! 
-          Sua opinião é muito importante para nós.
+          Sua pesquisa foi enviada via WhatsApp para nossa equipe.
         </motion.p>
+
+        {/* Aviso WhatsApp */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-8"
+        >
+          <div className="flex items-center gap-3 justify-center">
+            <MessageCircle className="w-5 h-5 text-blue-600" />
+            <p className="text-blue-800 font-medium">
+              Verifique se o WhatsApp foi aberto em uma nova aba
+            </p>
+          </div>
+        </motion.div>
 
         {/* Cards de Informação */}
         <motion.div
@@ -88,9 +103,9 @@ const ConfirmacaoEnvio = ({ onVoltar }: ConfirmacaoEnvioProps) => {
         >
           <h3 className="font-semibold text-gray-800 mb-3">O que acontece agora?</h3>
           <div className="space-y-2 text-sm text-gray-600">
+            <p>• Nossa equipe recebeu sua pesquisa via WhatsApp</p>
             <p>• Analisaremos todas as respostas coletadas</p>
             <p>• Identificaremos as necessidades da região</p>
-            <p>• Planejaremos nossa expansão estratégica</p>
             <p>• Entraremos em contato se você demonstrou interesse</p>
           </div>
         </motion.div>
@@ -117,7 +132,7 @@ const ConfirmacaoEnvio = ({ onVoltar }: ConfirmacaoEnvioProps) => {
           className="mt-8 text-center text-gray-500"
         >
           <p className="text-sm">
-            Se você tem alguma dúvida, entre em contato conosco.
+            Se você tem alguma dúvida, entre em contato conosco via WhatsApp.
           </p>
         </motion.div>
       </motion.div>

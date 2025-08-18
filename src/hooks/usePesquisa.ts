@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import pesquisaService, { type FormData } from '../services/pesquisaService';
+import { type FormData, formatWhatsAppMessage, sendToWhatsApp, validateFormData } from '../utils/whatsappUtils';
 
 interface UsePesquisaReturn {
   // Estados
@@ -26,22 +26,27 @@ export const usePesquisa = (): UsePesquisaReturn => {
     setSuccessMessage(null);
 
     try {
-      console.log('🚀 Iniciando envio da pesquisa...');
-      const response = await pesquisaService.criarPesquisa(formData);
+      console.log('🚀 Iniciando envio da pesquisa via WhatsApp...');
       
-      if (response.success) {
-        setIsSubmitted(true);
-        setSuccessMessage(response.message || 'Pesquisa enviada com sucesso!');
-        console.log('✅ Pesquisa criada com sucesso:', response.data);
-        
-        // Não limpar automaticamente - deixar o usuário controlar
-        // setTimeout(() => {
-        //   resetForm();
-        // }, 3000);
-      } else {
-        setError(response.message || 'Erro ao enviar pesquisa');
-        console.error('❌ Erro na resposta da API:', response);
+      // Validar dados do formulário
+      const validation = validateFormData(formData);
+      if (!validation.isValid) {
+        setError(`Por favor, corrija os seguintes erros:\n${validation.errors.join('\n')}`);
+        return;
       }
+
+      // Formatar mensagem para WhatsApp
+      const message = formatWhatsAppMessage(formData);
+      console.log('📱 Mensagem formatada:', message);
+      
+      // Enviar para WhatsApp
+      sendToWhatsApp(message);
+      
+      // Marcar como enviado
+      setIsSubmitted(true);
+      setSuccessMessage('Pesquisa enviada com sucesso! O WhatsApp será aberto em uma nova aba.');
+      console.log('✅ Pesquisa enviada via WhatsApp com sucesso!');
+      
     } catch (err: any) {
       const errorMessage = err.message || 'Erro inesperado ao enviar pesquisa';
       setError(errorMessage);

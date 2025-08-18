@@ -20,8 +20,7 @@ import ConfirmacaoEnvio from '../components/ConfirmacaoEnvio';
 import ProgressBar from '../components/ProgressBar';
 import Notification from '../components/Notification';
 import { usePesquisa } from '../hooks/usePesquisa';
-import { type FormData } from '../services/pesquisaService';
-import pesquisaService from '../services/pesquisaService';
+import { type FormData } from '../utils/whatsappUtils';
 
 const PesquisaMercado = () => {
   const { responsavel } = useParams<{ responsavel?: string }>();
@@ -39,10 +38,7 @@ const PesquisaMercado = () => {
     responsavel: ''
   });
 
-  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [responsavelPreenchido, setResponsavelPreenchido] = useState(false);
-  const [cpfStatus, setCpfStatus] = useState<'idle' | 'checking' | 'exists' | 'available'>('idle');
-  const [whatsappStatus, setWhatsappStatus] = useState<'idle' | 'checking' | 'exists' | 'available'>('idle');
 
   const {
     isSubmitting,
@@ -53,20 +49,6 @@ const PesquisaMercado = () => {
     resetForm,
     clearMessages
   } = usePesquisa();
-
-  // Verificar status da API ao carregar a página
-  useEffect(() => {
-    const checkApiStatus = async () => {
-      try {
-        const response = await pesquisaService.healthCheck();
-        setApiStatus(response.success ? 'online' : 'offline');
-      } catch (error) {
-        setApiStatus('offline');
-      }
-    };
-
-    checkApiStatus();
-  }, []);
 
   // Pré-preencher responsável se fornecido na URL
   useEffect(() => {
@@ -96,13 +78,6 @@ const PesquisaMercado = () => {
       } else {
         processedValue = `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
       }
-      
-      // Verificar WhatsApp se tiver 11 dígitos
-      if (numbers.length === 11) {
-        verificarWhatsApp(processedValue);
-      } else {
-        setWhatsappStatus('idle');
-      }
     }
     
     // Aplicar máscara para CPF
@@ -120,13 +95,6 @@ const PesquisaMercado = () => {
       } else {
         processedValue = `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
       }
-      
-      // Verificar CPF se tiver 11 dígitos
-      if (numbers.length === 11) {
-        verificarCPF(processedValue);
-      } else {
-        setCpfStatus('idle');
-      }
     }
     
     setFormData(prev => ({
@@ -142,50 +110,6 @@ const PesquisaMercado = () => {
         ? prev.usoInternet.filter(item => item !== option)
         : [...prev.usoInternet, option]
     }));
-  };
-
-  // Verificar WhatsApp em tempo real
-  const verificarWhatsApp = async (whatsapp: string) => {
-    if (!whatsapp || whatsapp.length < 11) {
-      setWhatsappStatus('idle');
-      return;
-    }
-
-    setWhatsappStatus('checking');
-    
-    try {
-      const response = await pesquisaService.verificarWhatsApp(whatsapp);
-      if (response.success && response.data) {
-        setWhatsappStatus(response.data.jaExiste ? 'exists' : 'available');
-      } else {
-        setWhatsappStatus('idle');
-      }
-    } catch (error) {
-      console.error('Erro ao verificar WhatsApp:', error);
-      setWhatsappStatus('idle');
-    }
-  };
-
-  // Verificar CPF em tempo real
-  const verificarCPF = async (cpf: string) => {
-    if (!cpf || cpf.length < 11) {
-      setCpfStatus('idle');
-      return;
-    }
-
-    setCpfStatus('checking');
-    
-    try {
-      const response = await pesquisaService.verificarCPF(cpf);
-      if (response.success && response.data) {
-        setCpfStatus(response.data.jaExiste ? 'exists' : 'available');
-      } else {
-        setCpfStatus('idle');
-      }
-    } catch (error) {
-      console.error('Erro ao verificar CPF:', error);
-      setCpfStatus('idle');
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -226,16 +150,18 @@ const PesquisaMercado = () => {
     }
 
     // Validação do WhatsApp (se já existe)
-    if (whatsappStatus === 'exists') {
-      alert('Este número de WhatsApp já foi cadastrado em uma pesquisa anterior. Por favor, use um número diferente.');
-      return;
-    }
+    // Removido a lógica de verificação da API
+    // if (whatsappStatus === 'exists') {
+    //   alert('Este número de WhatsApp já foi cadastrado em uma pesquisa anterior. Por favor, use um número diferente.');
+    //   return;
+    // }
 
     // Validação do CPF (se fornecido)
-    if (formData.cpf && cpfStatus === 'exists') {
-      alert('Este CPF já foi cadastrado em uma pesquisa anterior. Por favor, use um CPF diferente ou deixe o campo em branco.');
-      return;
-    }
+    // Removido a lógica de verificação da API
+    // if (formData.cpf && cpfStatus === 'exists') {
+    //   alert('Este CPF já foi cadastrado em uma pesquisa anterior. Por favor, use um CPF diferente ou deixe o campo em branco.');
+    //   return;
+    // }
 
     console.log('📝 Enviando formulário:', formData);
     await submitPesquisa(formData);
@@ -257,8 +183,8 @@ const PesquisaMercado = () => {
       interesseProposta: '',
       responsavel: responsavelAtual
     });
-    setCpfStatus('idle');
-    setWhatsappStatus('idle');
+    // setCpfStatus('idle'); // Removido
+    // setWhatsappStatus('idle'); // Removido
   };
 
   // Calcula o progresso do formulário
@@ -303,24 +229,11 @@ const PesquisaMercado = () => {
           
           {/* Status da API */}
           <div className="mt-4 flex items-center justify-center gap-2">
-            {apiStatus === 'checking' && (
-              <div className="flex items-center gap-2 text-yellow-600">
-                <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-sm">Verificando conexão...</span>
-              </div>
-            )}
-            {apiStatus === 'online' && (
-              <div className="flex items-center gap-2 text-green-600">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-sm">Sistema online</span>
-              </div>
-            )}
-            {apiStatus === 'offline' && (
-              <div className="flex items-center gap-2 text-red-600">
-                <WifiOff className="w-4 h-4" />
-                <span className="text-sm">Sistema temporariamente indisponível</span>
-              </div>
-            )}
+            {/* Removido o status da API */}
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="w-4 h-4" />
+              <span className="text-sm">Sistema online</span>
+            </div>
           </div>
         </motion.div>
 
@@ -360,42 +273,12 @@ const PesquisaMercado = () => {
                     type="tel"
                     value={formData.whatsapp}
                     onChange={(e) => handleInputChange('whatsapp', e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
-                      whatsappStatus === 'exists' 
-                        ? 'border-red-300 bg-red-50' 
-                        : whatsappStatus === 'available'
-                        ? 'border-green-300 bg-green-50'
-                        : 'border-gray-300'
-                    }`}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all`}
                     placeholder="(11) 99999-9999"
                     required
                   />
-                  {whatsappStatus === 'checking' && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  )}
-                  {whatsappStatus === 'exists' && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">✕</span>
-                      </div>
-                    </div>
-                  )}
-                  {whatsappStatus === 'available' && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">✓</span>
-                      </div>
-                    </div>
-                  )}
+                  {/* Removido o status de verificação */}
                 </div>
-                {whatsappStatus === 'exists' && (
-                  <p className="text-xs text-red-600">Este WhatsApp já foi cadastrado em uma pesquisa anterior</p>
-                )}
-                {whatsappStatus === 'available' && (
-                  <p className="text-xs text-green-600">WhatsApp disponível para cadastro</p>
-                )}
               </div>
             </div>
 
@@ -410,45 +293,11 @@ const PesquisaMercado = () => {
                    type="text"
                    value={formData.cpf}
                    onChange={(e) => handleInputChange('cpf', e.target.value)}
-                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${
-                     cpfStatus === 'exists' 
-                       ? 'border-red-300 bg-red-50' 
-                       : cpfStatus === 'available'
-                       ? 'border-green-300 bg-green-50'
-                       : 'border-gray-300'
-                   }`}
+                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all`}
                    placeholder="000.000.000-00"
                  />
-                 {cpfStatus === 'checking' && (
-                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                     <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                   </div>
-                 )}
-                 {cpfStatus === 'exists' && (
-                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                     <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                       <span className="text-white text-xs">✕</span>
-                     </div>
-                   </div>
-                 )}
-                 {cpfStatus === 'available' && (
-                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                     <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                       <span className="text-white text-xs">✓</span>
-                     </div>
-                   </div>
-                 )}
+                 {/* Removido o status de verificação */}
                </div>
-               {cpfStatus === 'exists' && (
-                 <p className="text-xs text-red-600">
-                   Este CPF já foi cadastrado em uma pesquisa anterior
-                 </p>
-               )}
-               {cpfStatus === 'available' && (
-                 <p className="text-xs text-green-600">
-                   CPF disponível para cadastro
-                 </p>
-               )}
              </div>
 
             {/* Provedor Atual */}
@@ -621,12 +470,12 @@ const PesquisaMercado = () => {
 
                          {/* Botão de Envio */}
              <motion.button
-               whileHover={{ scale: (isSubmitting || apiStatus === 'offline') ? 1 : 1.02 }}
-               whileTap={{ scale: (isSubmitting || apiStatus === 'offline') ? 1 : 0.98 }}
+               whileHover={{ scale: (isSubmitting) ? 1 : 1.02 }}
+               whileTap={{ scale: (isSubmitting) ? 1 : 0.98 }}
                type="submit"
-               disabled={isSubmitting || apiStatus === 'offline'}
+               disabled={isSubmitting}
                className={`w-full font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg ${
-                 isSubmitting || apiStatus === 'offline'
+                 isSubmitting
                    ? 'bg-gray-400 cursor-not-allowed' 
                    : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 hover:shadow-xl text-white'
                }`}
@@ -636,8 +485,6 @@ const PesquisaMercado = () => {
                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                    Enviando...
                  </div>
-               ) : apiStatus === 'offline' ? (
-                 'Sistema Indisponível'
                ) : (
                  'Enviar Pesquisa'
                )}

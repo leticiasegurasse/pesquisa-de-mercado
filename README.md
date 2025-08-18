@@ -4,76 +4,75 @@ Frontend React + TypeScript para o sistema de Pesquisa de Mercado da G2 Telecom.
 
 ## 🚀 Tecnologias
 
-- **React 18** + **TypeScript**
-- **Vite** - Build tool
+- **React 19** + **TypeScript**
+- **Vite 6** - Build tool
 - **Tailwind CSS** - Estilização
-- **Axios** - Cliente HTTP
+- **Framer Motion** - Animações
 - **React Router** - Roteamento
-- **React Hook Form** - Formulários
+- **Lucide React** - Ícones
 
 ## 📋 Funcionalidades
 
-- ✅ **Autenticação** - Login/Logout com JWT
-- ✅ **Dashboard** - Estatísticas e visão geral
-- ✅ **Pesquisas** - CRUD completo
-- ✅ **Filtros Avançados** - Busca por múltiplos critérios
-- ✅ **Validações** - Verificação de WhatsApp e CPF
+- ✅ **Formulário de Pesquisa** - Coleta de dados completa
+- ✅ **Envio via WhatsApp** - Integração direta com WhatsApp Web
+- ✅ **Validações Locais** - Verificação de campos obrigatórios
+- ✅ **Máscaras de Entrada** - WhatsApp e CPF formatados
 - ✅ **Responsivo** - Interface mobile-friendly
+- ✅ **Animações** - Experiência visual fluida
 
-## 🔄 Migração para MongoDB
+## 🔄 Sistema WhatsApp
 
-Este frontend foi migrado para usar o novo backend MongoDB. Veja o [Guia de Migração](MIGRATION_GUIDE.md) para detalhes.
+Este frontend foi modificado para enviar pesquisas diretamente via WhatsApp, eliminando a necessidade de um backend.
 
-### Backends Suportados
+### Como Funciona
 
-- **🆕 MongoDB** (Recomendado) - `back-mongo/`
-- **📊 PostgreSQL** (Legado) - `backend/`
+1. **Preenchimento**: Usuário preenche o formulário
+2. **Validação**: Sistema valida todos os campos obrigatórios
+3. **Formatação**: Dados são formatados em mensagem estruturada
+4. **Envio**: WhatsApp Web é aberto com a mensagem pré-formatada
+5. **Confirmação**: Usuário confirma o envio no WhatsApp
+
+### Formato da Mensagem
+
+```
+🆕 NOVA PESQUISA DE MERCADO
+
+👤 Nome: [Nome do Cliente]
+📱 WhatsApp: [WhatsApp]
+📄 CPF: [CPF ou Não informado]
+🌐 Provedor Atual: [Provedor]
+😊 Satisfação: [Nível de Satisfação]
+📍 Bairro: [Bairro]
+⚡ Velocidade: [Velocidade]
+💰 Valor Mensal: [Valor]
+💻 Uso da Internet: [Usos selecionados]
+🎯 Interesse em Proposta: [Interesse]
+👨‍💼 Responsável: [Responsável]
+
+━━━━━━━━━━━━━━━━━━━━
+📊 Dados coletados em: [Data/Hora]
+🏢 Sistema: Pesquisa de Mercado G2 Telecom
+```
 
 ## 🚀 Como Executar
 
-### 1. **Configurar Ambiente**
-
-```bash
-# Executar script de configuração
-./setup-env.bat
-
-# Ou manualmente
-cp env.example .env
-```
-
-### 2. **Instalar Dependências**
+### 1. **Instalar Dependências**
 
 ```bash
 npm install
 ```
 
-### 3. **Iniciar Backend MongoDB**
-
-```bash
-# Em outro terminal
-cd ../back-mongo
-npm install
-npm run dev
-```
-
-### 4. **Iniciar Frontend**
+### 2. **Iniciar Frontend**
 
 ```bash
 npm run dev
 ```
+
+### 3. **Acessar Aplicação**
+
+Abra `http://localhost:5173` no navegador.
 
 ## 🔧 Configuração
-
-### Variáveis de Ambiente (.env)
-
-```env
-# URL da API Backend
-VITE_API_URL=http://localhost:3001
-
-# Configurações da aplicação
-VITE_APP_NAME=Pesquisa de Mercado
-VITE_APP_VERSION=2.0.0
-```
 
 ### Scripts Disponíveis
 
@@ -89,64 +88,107 @@ npm run lint         # Linting
 ```
 src/
 ├── components/      # Componentes React
+│   ├── Header.tsx      # Cabeçalho da aplicação
+│   ├── ConfirmacaoEnvio.tsx # Tela de confirmação
+│   ├── ProgressBar.tsx # Barra de progresso
+│   └── Notification.tsx # Sistema de notificações
 ├── pages/          # Páginas da aplicação
-├── services/       # Serviços de API
+│   ├── PesquisaMercado.tsx # Formulário principal
+│   ├── Login.tsx       # Autenticação (legado)
+│   ├── Dashboard.tsx   # Dashboard (legado)
+│   └── NotFound.tsx    # Página 404
 ├── hooks/          # Custom hooks
+│   ├── usePesquisa.ts # Lógica de pesquisas
+│   └── useScrollToTop.ts # Scroll automático
+├── utils/          # Utilitários
+│   └── whatsappUtils.ts # Funções do WhatsApp
 ├── config/         # Configurações
-├── lib/            # Bibliotecas
-├── types/          # Tipos TypeScript
+│   ├── api.ts         # Configuração da API (legado)
+│   └── routes.ts      # Definição de rotas
 └── styles/         # Estilos globais
 ```
 
-## 🔐 Autenticação
+## 📊 Campos da Pesquisa
 
-O sistema usa JWT para autenticação:
+### Campos Obrigatórios
+- **Nome**: Nome completo do cliente
+- **WhatsApp**: Número de contato (formato: (XX) XXXXX-XXXX)
+- **Provedor Atual**: Provedor de internet atual
+- **Satisfação**: Nível de satisfação com o serviço atual
+- **Bairro**: Bairro onde reside
+- **Valor Mensal**: Valor pago mensalmente
+- **Uso da Internet**: Múltipla escolha (trabalho, jogos, etc.)
+- **Interesse em Proposta**: Se tem interesse em proposta da G2
+- **Responsável**: Nome do responsável pela pesquisa
 
-- **Login**: `/api/auth/login`
-- **Refresh**: `/api/auth/refresh`
-- **Profile**: `/api/auth/profile`
-- **Validate**: `/api/auth/validate`
+### Campos Opcionais
+- **CPF**: CPF do cliente (formato: XXX.XXX.XXX-XX)
+- **Velocidade**: Velocidade atual do plano
 
-## 📊 API Endpoints
+## 🎨 Interface e UX
 
-### Pesquisas
-- `GET /api/pesquisas` - Listar pesquisas
-- `POST /api/pesquisas` - Criar pesquisa
-- `GET /api/pesquisas/estatisticas` - Estatísticas
-- `GET /api/pesquisas/verificar-whatsapp/:whatsapp` - Verificar WhatsApp
-- `GET /api/pesquisas/verificar-cpf/:cpf` - Verificar CPF
+**Design System:**
+- Gradientes azul/cyan para branding G2 Telecom
+- Animações suaves com Framer Motion
+- Interface responsiva e moderna
+- Componentes com Tailwind CSS
+- Sistema de notificações toast
 
-### Filtros
-- `GET /api/pesquisas/interessados` - Apenas interessados
-- `GET /api/pesquisas/satisfeitos` - Apenas satisfeitos
-- `GET /api/pesquisas/nome/:nome` - Por nome
-- `GET /api/pesquisas/bairro/:bairro` - Por bairro
+**Experiência do Usuário:**
+- Formulário com progresso visual
+- Validações em tempo real
+- Máscaras automáticas para WhatsApp e CPF
+- Feedback imediato
+- Integração direta com WhatsApp
+
+## 🔐 Validações
+
+### WhatsApp
+- Formato obrigatório: (XX) XXXXX-XXXX
+- Validação de números válidos
+- Máscara automática durante digitação
+
+### CPF
+- Formato opcional: XXX.XXX.XXX-XX
+- Máscara automática durante digitação
+- Campo não obrigatório
+
+### Outros Campos
+- Nome: obrigatório, mínimo 2 caracteres
+- Provedor: obrigatório
+- Satisfação: obrigatório
+- Bairro: obrigatório
+- Valor: obrigatório
+- Uso da Internet: pelo menos uma opção
+- Interesse: obrigatório
+- Responsável: obrigatório
 
 ## 🐛 Troubleshooting
 
-### Erro de CORS
+### WhatsApp não abre
 ```bash
-# Verificar se backend está rodando
-curl http://localhost:3001/api/health
+# Verificar se o navegador permite popups
+# Verificar se o WhatsApp Web está acessível
 ```
 
-### Erro de Conexão
+### Formulário não envia
 ```bash
-# Verificar variáveis de ambiente
-# Verificar logs do backend
+# Verificar se todos os campos obrigatórios estão preenchidos
+# Verificar se o WhatsApp está funcionando
 ```
 
-### Limpar Cache
+### Problemas de Validação
 ```bash
-# Limpar localStorage
-localStorage.clear()
+# Verificar formato do WhatsApp: (XX) XXXXX-XXXX
+# Verificar formato do CPF: XXX.XXX.XXX-XX
 ```
 
 ## 📚 Documentação
 
-- [Guia de Migração](MIGRATION_GUIDE.md) - Como migrar para MongoDB
-- [Backend MongoDB](../back-mongo/README.md) - Documentação do backend
-- [Coleção Postman](../back-mongo/postman_collection.json) - Testes da API
+- [WhatsApp Business API](https://developers.whatsapp.com/) - Documentação oficial
+- [React Router](https://reactrouter.com/) - Roteamento
+- [Tailwind CSS](https://tailwindcss.com/) - Estilização
+- [Framer Motion](https://www.framer.com/motion/) - Animações
 
 ## 🤝 Contribuição
 
@@ -162,4 +204,4 @@ Este projeto é privado da G2 Telecom.
 
 ---
 
-**🎉 Frontend configurado e pronto para usar com o backend MongoDB!**
+**🎉 Frontend configurado para envio via WhatsApp - Sem necessidade de backend!**
