@@ -4,7 +4,7 @@ import authService from '../services/authService';
 interface User {
   id: string;
   email: string;
-  name: string;
+  name_user: string;
   role: string;
 }
 
@@ -31,42 +31,32 @@ export const useAuth = (): UseAuthReturn => {
   const [isLoading, setIsLoading] = useState(true); // Começa como true para validar token
   const [error, setError] = useState<string | null>(null);
 
-  // Verificar se há token salvo no localStorage e validar no backend
+  // Verificar se há token salvo no localStorage
   useEffect(() => {
-    const validateToken = async () => {
+    const initializeAuth = () => {
       const token = localStorage.getItem('auth_token');
       const savedUser = localStorage.getItem('user');
       
       if (token && savedUser) {
         try {
           const userData = JSON.parse(savedUser);
-          
-          // Validar token no backend
-          const response = await authService.validateToken();
-          
-          if (response.success) {
-            setUser(userData);
-          } else {
-            // Token inválido, limpar dados
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('refresh_token');
-            localStorage.removeItem('user');
-            setUser(null);
-          }
+          setUser(userData);
+          console.log('🔐 Usuário restaurado do localStorage:', userData);
         } catch (err) {
-          // Token inválido, limpar dados
+          console.error('❌ Erro ao restaurar usuário:', err);
+          // Dados corrompidos, limpar localStorage
           localStorage.removeItem('auth_token');
-            localStorage.removeItem('refresh_token');
-            localStorage.removeItem('user');
-            setUser(null);
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user');
+          setUser(null);
         }
       }
       
-      // Sempre definir loading como false após validação
+      // Sempre definir loading como false após inicialização
       setIsLoading(false);
     };
 
-    validateToken();
+    initializeAuth();
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<boolean> => {
@@ -88,8 +78,10 @@ export const useAuth = (): UseAuthReturn => {
         }
         localStorage.setItem('user', JSON.stringify(user));
         
+        // Atualizar estado do usuário
         setUser(user);
         console.log('✅ Login realizado com sucesso, usuário definido:', user);
+        console.log('🔍 Estado atual do useAuth - user:', user, 'isAuthenticated:', !!user);
         return true;
       } else {
         console.error('❌ Login falhou:', response.message);

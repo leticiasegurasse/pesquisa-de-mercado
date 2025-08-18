@@ -14,14 +14,15 @@ const ProtectedRoute = ({
   requireAuth = true, 
   redirectTo = ROUTES.LOGIN 
 }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
   console.log('🔒 ProtectedRoute:', {
     requireAuth,
     isAuthenticated,
     isLoading,
-    pathname: location.pathname
+    pathname: location.pathname,
+    user: user
   });
 
   // Mostrar loading enquanto verifica autenticação

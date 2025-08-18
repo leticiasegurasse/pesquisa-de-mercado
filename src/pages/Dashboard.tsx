@@ -473,11 +473,11 @@ const Dashboard = () => {
               <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 rounded-lg">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-semibold">
-                    {user?.name?.charAt(0) || 'U'}
+                    {user?.name_user?.charAt(0) || 'U'}
                   </span>
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-medium text-gray-800">{user?.name || 'Usuário'}</p>
+                  <p className="text-sm font-medium text-gray-800">{user?.name_user || 'Usuário'}</p>
                   <p className="text-xs text-gray-500">{user?.email || 'admin@exemplo.com'}</p>
                 </div>
               </div>
