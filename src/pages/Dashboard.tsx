@@ -148,7 +148,7 @@ const Dashboard = () => {
         }
       }
       
-             // Busca geral com filtros combinados
+        // Busca geral com filtros combinados
        const filtros = { ...filtrosAtivos, ...filtrosCombinados };
        if (searchTerm) {
          filtros.search = searchTerm;
@@ -199,7 +199,7 @@ const Dashboard = () => {
         const estatisticasResponse = await pesquisaService.buscarEstatisticas();
         if (estatisticasResponse.success && estatisticasResponse.data) {
           setEstatisticas(estatisticasResponse.data);
-          console.log('✅ Estatísticas carregadas');
+          console.log('✅ Estatísticas carregadas', estatisticasResponse.data);
         }
       }
       

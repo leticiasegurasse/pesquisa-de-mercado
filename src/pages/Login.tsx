@@ -10,7 +10,7 @@ const Login = () => {
   const { login, isLoading, error, clearError } = useAuth();
   
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -34,10 +34,8 @@ const Login = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email é obrigatório';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email inválido';
+    if (!formData.username.trim()) {
+      newErrors.username = 'Nome de usuário é obrigatório';
     }
 
     if (!formData.password.trim()) {
@@ -124,30 +122,30 @@ const Login = () => {
                 </div>
               </motion.div>
             )}
-            {/* Campo Email */}
+            {/* Campo Username */}
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                 <User className="w-4 h-4 text-blue-500" />
-                Email
+                Nome de Usuário
               </label>
               <div className="relative">
                 <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) => handleInputChange('username', e.target.value)}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    errors.username ? 'border-red-300 bg-red-50' : 'border-gray-300'
                   }`}
-                  placeholder="seu@email.com"
+                  placeholder="Seu nome de usuário"
                   disabled={isLoading}
                 />
-                {errors.email && (
+                {errors.username && (
                   <motion.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-red-500 text-sm mt-1"
                   >
-                    {errors.email}
+                    {errors.username}
                   </motion.p>
                 )}
               </div>

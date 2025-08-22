@@ -1,14 +1,14 @@
-import api from '../lib/axios';
+import api from '../config/api';
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface User {
   id: string;
+  username: string;
   email: string;
-  name_user: string;
   role: string;
 }
 
@@ -37,8 +37,8 @@ class AuthService {
   // Fazer login
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      console.log('📤 Enviando credenciais para login:', { email: credentials.email });
-      const response = await api.post<AuthResponse>('/auth/login', credentials);
+      console.log('📤 Enviando credenciais para login:', { username: credentials.username });
+      const response = await api.post<AuthResponse>('/api/auth/login', credentials);
       console.log('📥 Resposta do servidor:', response.data);
       return response.data;
     } catch (error: any) {
@@ -53,7 +53,7 @@ class AuthService {
   // Fazer logout
   async logout(): Promise<AuthResponse> {
     try {
-      const response = await api.post<AuthResponse>('/auth/logout');
+      const response = await api.post<AuthResponse>('/api/auth/logout');
       return response.data;
     } catch (error: any) {
       if (error.response?.data) {
@@ -66,7 +66,7 @@ class AuthService {
   // Renovar token
   async refreshToken(refreshToken: string): Promise<RefreshTokenResponse> {
     try {
-      const response = await api.post<RefreshTokenResponse>('/auth/refresh', {
+      const response = await api.post<RefreshTokenResponse>('/api/auth/refresh', {
         refreshToken
       });
       return response.data;
@@ -81,7 +81,7 @@ class AuthService {
   // Verificar se token é válido
   async validateToken(): Promise<AuthResponse> {
     try {
-      const response = await api.get<AuthResponse>('/auth/verify-token');
+      const response = await api.get<AuthResponse>('/api/auth/verify-token');
       return response.data;
     } catch (error: any) {
       if (error.response?.data) {
@@ -94,7 +94,7 @@ class AuthService {
   // Esqueci a senha
   async forgotPassword(email: string): Promise<AuthResponse> {
     try {
-      const response = await api.post<AuthResponse>('/auth/forgot-password', {
+      const response = await api.post<AuthResponse>('/api/auth/forgot-password', {
         email
       });
       return response.data;
@@ -109,7 +109,7 @@ class AuthService {
   // Redefinir senha
   async resetPassword(token: string, newPassword: string): Promise<AuthResponse> {
     try {
-      const response = await api.post<AuthResponse>('/auth/reset-password', {
+      const response = await api.post<AuthResponse>('/api/auth/reset-password', {
         token,
         newPassword
       });
@@ -125,7 +125,7 @@ class AuthService {
   // Obter perfil do usuário
   async getProfile(): Promise<AuthResponse> {
     try {
-      const response = await api.get<AuthResponse>('/auth/profile');
+      const response = await api.get<AuthResponse>('/api/auth/profile');
       return response.data;
     } catch (error: any) {
       if (error.response?.data) {
@@ -138,7 +138,7 @@ class AuthService {
   // Atualizar perfil
   async updateProfile(userData: Partial<User>): Promise<AuthResponse> {
     try {
-      const response = await api.put<AuthResponse>('/auth/profile', userData);
+      const response = await api.put<AuthResponse>('/api/auth/profile', userData);
       return response.data;
     } catch (error: any) {
       if (error.response?.data) {
@@ -151,7 +151,7 @@ class AuthService {
   // Alterar senha
   async changePassword(currentPassword: string, newPassword: string): Promise<AuthResponse> {
     try {
-      const response = await api.post<AuthResponse>('/auth/change-password', {
+      const response = await api.post<AuthResponse>('/api/auth/change-password', {
         currentPassword,
         newPassword
       });

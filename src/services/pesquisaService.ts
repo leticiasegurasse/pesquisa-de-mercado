@@ -1,4 +1,4 @@
-import api from '../lib/axios';
+import api from '../config/api';
 
 export interface FormData {
   nome: string;
@@ -64,17 +64,38 @@ export interface Estatisticas {
 class PesquisaService {
   // Converter dados do frontend para o formato da API
   private convertFormData(formData: FormData) {
+    // Mapear valores de satisfação do frontend para o backend
+    const mapearSatisfacao = (satisfacao: string): string => {
+      const mapeamento: Record<string, string> = {
+        'Muito satisfeito': 'muito_satisfeito',
+        'Satisfeito': 'satisfeito',
+        'Neutro': 'neutro',
+        'Insatisfeito': 'insatisfeito',
+        'Muito insatisfeito': 'muito_insatisfeito'
+      };
+      return mapeamento[satisfacao] || satisfacao;
+    };
+
+    // Mapear valores de interesse do frontend para o backend
+    const mapearInteresse = (interesse: string): string => {
+      const mapeamento: Record<string, string> = {
+        'Sim, tenho interesse': 'sim',
+        'Não tenho interesse': 'nao'
+      };
+      return mapeamento[interesse] || interesse;
+    };
+
     return {
       nome: formData.nome,
       whatsapp: formData.whatsapp,
       cpf: formData.cpf || undefined,
       provedor_atual: formData.provedorAtual,
-      satisfacao: formData.satisfacao,
+      satisfacao: mapearSatisfacao(formData.satisfacao),
       bairro: formData.bairro,
       velocidade: formData.velocidade || '',
       valor_mensal: formData.valorMensal,
       uso_internet: formData.usoInternet.join(', '),
-      interesse_proposta: formData.interesseProposta,
+      interesse_proposta: mapearInteresse(formData.interesseProposta),
       responsavel: formData.responsavel,
     };
   }

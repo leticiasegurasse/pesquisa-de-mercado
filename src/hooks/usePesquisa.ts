@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { type FormData, formatWhatsAppMessage, sendToWhatsApp, validateFormData } from '../utils/whatsappUtils';
+import { type FormData } from '../utils/whatsappUtils';
+import pesquisaService from '../services/pesquisaService';
 
 interface UsePesquisaReturn {
   // Estados
@@ -26,26 +27,28 @@ export const usePesquisa = (): UsePesquisaReturn => {
     setSuccessMessage(null);
 
     try {
-      console.log('🚀 Iniciando envio da pesquisa via WhatsApp...');
+      console.log('🚀 Iniciando envio da pesquisa para a API...');
       
-      // Validar dados do formulário
-      const validation = validateFormData(formData);
-      if (!validation.isValid) {
-        setError(`Por favor, corrija os seguintes erros:\n${validation.errors.join('\n')}`);
-        return;
+      // Enviar para a API do backend
+      const response = await pesquisaService.criarPesquisa(formData);
+      
+      if (response.success) {
+        console.log('✅ Pesquisa enviada com sucesso para a API!');
+        setIsSubmitted(true);
+        setSuccessMessage('Pesquisa enviada com sucesso! Obrigado por participar.');
+      } else {
+        // Tratar erros específicos da API
+        if (response.error === 'WHATSAPP_DUPLICATE') {
+          setError('Este número de WhatsApp já foi cadastrado em uma pesquisa anterior. Cada número pode participar apenas uma vez.');
+        } else if (response.error === 'CPF_DUPLICATE') {
+          setError('Este CPF já foi cadastrado em uma pesquisa anterior. Cada CPF pode participar apenas uma vez.');
+        } else if (response.error === 'NETWORK_ERROR') {
+          setError('Erro de conexão. Verifique sua internet e tente novamente.');
+        } else {
+          setError(response.message || 'Erro ao enviar pesquisa. Tente novamente.');
+        }
+        console.error('❌ Erro na API:', response.message);
       }
-
-      // Formatar mensagem para WhatsApp
-      const message = formatWhatsAppMessage(formData);
-      console.log('📱 Mensagem formatada:', message);
-      
-      // Enviar para WhatsApp
-      sendToWhatsApp(message);
-      
-      // Marcar como enviado
-      setIsSubmitted(true);
-      setSuccessMessage('Pesquisa enviada com sucesso! O WhatsApp será aberto em uma nova aba.');
-      console.log('✅ Pesquisa enviada via WhatsApp com sucesso!');
       
     } catch (err: any) {
       const errorMessage = err.message || 'Erro inesperado ao enviar pesquisa';
